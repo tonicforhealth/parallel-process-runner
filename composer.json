@@ -1,0 +1,22 @@
+{
+    "name": "tonicforhealth/parallel-process-runner",
+    "authors": [
+        {
+            "name": "oleksii.storozhylov",
+            "email": "oleksii.storozhylov@tonicforhealth.com"
+        }
+    ],
+
+    "autoload": {
+        "psr-4": { "Tonic\\": "src" }
+    },
+
+    "require": {
+        "symfony/process": ">2.7 <= 3",
+        "symfony/event-dispatcher": ">2.7 <= 3"
+    },
+
+    "require-dev": {
+        "phpunit/phpunit": "4.1.*"
+    }
+}
