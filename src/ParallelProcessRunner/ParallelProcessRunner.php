@@ -3,6 +3,7 @@
 namespace Tonic\ParallelProcessRunner;
 
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Process\Process;
 use Tonic\ParallelProcessRunner\Collection\ProcessCollection;
 use Tonic\ParallelProcessRunner\Collection\WaitProcessCollection;
@@ -20,7 +21,7 @@ use Tonic\ParallelProcessRunner\Exception\NotProcessException;
 class ParallelProcessRunner
 {
     /**
-     * @var EventDispatcher
+     * @var EventDispatcherInterface
      */
     protected $eventDispatcher;
     /**
@@ -51,9 +52,9 @@ class ParallelProcessRunner
     /**
      * ProcessManager constructor.
      *
-     * @param EventDispatcher|null $eventDispatcher
+     * @param EventDispatcherInterface|null $eventDispatcher
      */
-    public function __construct(EventDispatcher $eventDispatcher = null)
+    public function __construct(EventDispatcherInterface $eventDispatcher = null)
     {
         if (!$eventDispatcher) {
             $eventDispatcher = new EventDispatcher();
@@ -90,7 +91,7 @@ class ParallelProcessRunner
     }
 
     /**
-     * @return EventDispatcher
+     * @return EventDispatcherInterface
      */
     public function getEventDispatcher()
     {

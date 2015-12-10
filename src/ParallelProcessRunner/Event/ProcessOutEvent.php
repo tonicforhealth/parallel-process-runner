@@ -27,6 +27,8 @@ class ProcessOutEvent extends AbstractProcessEvent
      */
     public function __construct(Process $process, $outType, $outData)
     {
+        $this->outType = $outType;
+        $this->outData = $outData;
         parent::__construct($process);
     }
 
