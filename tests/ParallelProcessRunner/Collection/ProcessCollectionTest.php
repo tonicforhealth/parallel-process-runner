@@ -4,6 +4,7 @@ namespace Tonic\ParallelProcessRunner\Collection;
 
 use Symfony\Component\Process\Process;
 use Tonic\ParallelProcessRunner\Exception\NotProcessException;
+use Tonic\ParallelProcessRunner\Exception\ProcessAlreadyInCollectionException;
 
 /**
  * Class ProcessCollectionTest.
@@ -41,10 +42,21 @@ class ProcessCollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testAdd(array $processes)
     {
-        $collection = $this->getCollection($processes);
-        $this->assertEquals($processes, $collection->toArray());
+        $this->assertEquals($processes, $this->getCollection($processes)->toArray());
+    }
 
-        return $collection;
+    /**
+     * @expectedException \Tonic\ParallelProcessRunner\Exception\ProcessAlreadyInCollectionException
+     */
+    public function testAddDuplicate()
+    {
+        $process = $this->getProcess();
+        try {
+            $this->getCollection([$process, $process]);
+        } catch (ProcessAlreadyInCollectionException $exception) {
+            $this->assertEquals($process, $exception->getProcess());
+            throw $exception;
+        }
     }
 
     /**
@@ -80,17 +92,13 @@ class ProcessCollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testClear()
     {
-        $collection = $this->getCollection($this->getProcess());
-        $collection->clear();
-        $this->assertEmpty($collection->toArray());
+        $this->assertEmpty($this->getCollection($this->getProcess())->clear()->toArray());
     }
 
     public function testIsEmpty()
     {
-        $collection = $this->getCollection();
-        $this->assertTrue($collection->isEmpty());
-        $collection->add($this->getProcess());
-        $this->assertFalse($collection->isEmpty());
+        $this->assertTrue($this->getCollection()->isEmpty());
+        $this->assertFalse($this->getCollection($this->getProcess())->isEmpty());
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Tonic\ParallelProcessRunner\Collection;
 
 use Symfony\Component\Process\Process;
 use Tonic\ParallelProcessRunner\Exception\NotProcessException;
+use Tonic\ParallelProcessRunner\Exception\ProcessAlreadyInCollectionException;
 
 /**
  * Class ProcessCollection.
@@ -16,11 +17,16 @@ class ProcessCollection
      * @var Process[]
      */
     private $processes = [];
+    /**
+     * @var int
+     */
+    private $processIndex;
 
     /**
      * @param Process $process
      *
      * @throws NotProcessException
+     * @throws ProcessAlreadyInCollectionException
      *
      * @return int index of last element
      */
@@ -30,12 +36,14 @@ class ProcessCollection
             throw new NotProcessException($process);
         }
 
-        $this->processes[] = $process;
+        $key = spl_object_hash($process);
+        if (array_key_exists($key, $this->processes)) {
+            throw new ProcessAlreadyInCollectionException($process);
+        }
 
-        end($this->processes);
-        $processIndex = key($this->processes);
+        $this->processes[$key] = $process;
 
-        return $processIndex;
+        return $this->processIndex++;
     }
 
     /**
@@ -101,6 +109,6 @@ class ProcessCollection
      */
     public function toArray()
     {
-        return $this->processes;
+        return array_values($this->processes);
     }
 }

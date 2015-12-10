@@ -18,7 +18,3 @@ $runner
     ])
     ->run();
 ```
-
-# Todo
-
-* tests
