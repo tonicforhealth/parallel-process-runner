@@ -10,7 +10,7 @@ use Symfony\Component\Process\Process;
  *
  * @author kandelyabre <kandelyabre@gmail.com>
  */
-abstract class AbstractProcessEvent extends Event
+class ProcessEvent extends Event
 {
     /**
      * @var Process

@@ -7,8 +7,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Process\Process;
 use Tonic\ParallelProcessRunner\Collection\ProcessCollection;
 use Tonic\ParallelProcessRunner\Collection\WaitProcessCollection;
-use Tonic\ParallelProcessRunner\Event\ProcessAfterStopEvent;
-use Tonic\ParallelProcessRunner\Event\ProcessBeforeStartEvent;
+use Tonic\ParallelProcessRunner\Event\ParallelProcessRunnerEventType;
+use Tonic\ParallelProcessRunner\Event\ProcessEvent;
 use Tonic\ParallelProcessRunner\Event\ProcessOutEvent;
 use Tonic\ParallelProcessRunner\Exception\AbstractProcessException;
 use Tonic\ParallelProcessRunner\Exception\NotProcessException;
@@ -134,9 +134,9 @@ class ParallelProcessRunner
         foreach ($this->waitProcessCollection->spliceByStatus(Process::STATUS_READY, $required) as $process) {
             $this->activeProcessCollection->add($process);
 
-            $this->getEventDispatcher()->dispatch(ProcessBeforeStartEvent::EVENT_NAME, new ProcessBeforeStartEvent($process));
+            $this->getEventDispatcher()->dispatch(ParallelProcessRunnerEventType::PROCESS_START_BEFORE, new ProcessEvent($process));
             $process->start(function ($outType, $outData) use ($process) {
-                $this->getEventDispatcher()->dispatch(ProcessOutEvent::EVENT_NAME, new ProcessOutEvent($process, $outType, $outData));
+                $this->getEventDispatcher()->dispatch(ParallelProcessRunnerEventType::PROCESS_OUT, new ProcessOutEvent($process, $outType, $outData));
             });
         }
 
@@ -157,7 +157,7 @@ class ParallelProcessRunner
 
         foreach ($processes as $process) {
             $this->doneProcessCollection->add($process);
-            $this->getEventDispatcher()->dispatch(ProcessAfterStopEvent::EVENT_NAME, new ProcessAfterStopEvent($process));
+            $this->getEventDispatcher()->dispatch(ParallelProcessRunnerEventType::PROCESS_STOP_AFTER, new ProcessEvent($process));
         }
 
         return $this;

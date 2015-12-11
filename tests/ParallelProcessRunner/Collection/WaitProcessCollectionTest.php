@@ -3,7 +3,6 @@
 namespace Tonic\ParallelProcessRunner\Collection;
 
 use Symfony\Component\Process\Process;
-use Tonic\ParallelProcessRunner\Exception\NotProcessException;
 use Tonic\ParallelProcessRunner\Exception\ProcessesMustBeInReadyStatusException;
 
 /**

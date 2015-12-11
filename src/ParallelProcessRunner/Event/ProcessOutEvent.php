@@ -9,10 +9,8 @@ use Symfony\Component\Process\Process;
  *
  * @author kandelyabre <kandelyabre@gmail.com>
  */
-class ProcessOutEvent extends AbstractProcessEvent
+class ProcessOutEvent extends ProcessEvent
 {
-    const EVENT_NAME = 'parallel_process_runner.process.out';
-
     /**
      * @var string
      */
