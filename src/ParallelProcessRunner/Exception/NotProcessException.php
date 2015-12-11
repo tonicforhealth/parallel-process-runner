@@ -9,12 +9,15 @@ namespace Tonic\ParallelProcessRunner\Exception;
  */
 class NotProcessException extends AbstractProcessException
 {
+    /**
+     * @var mixed
+     */
     private $object;
 
     /**
      * NotProcessException constructor.
      *
-     * @param $object
+     * @param mixed $object
      */
     public function __construct($object)
     {

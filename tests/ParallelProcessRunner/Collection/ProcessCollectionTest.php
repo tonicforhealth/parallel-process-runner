@@ -90,11 +90,17 @@ class ProcessCollectionTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * @see ProcessCollection::clear
+     */
     public function testClear()
     {
         $this->assertEmpty($this->getCollection($this->getProcess())->clear()->toArray());
     }
 
+    /**
+     * @see ProcessCollection::isEmtpy
+     */
     public function testIsEmpty()
     {
         $this->assertTrue($this->getCollection()->isEmpty());
@@ -124,8 +130,7 @@ class ProcessCollectionTest extends \PHPUnit_Framework_TestCase
                 [
                     $this->getProcess(),
                 ],
-                [
-                ],
+                [],
             ],
             [
                 1,
@@ -169,8 +174,10 @@ class ProcessCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param int   $status
      * @param array $processes
      * @param array $expectedResult
+     * @param null  $limit
      *
      * @dataProvider providerSpliceByStatus
      */
@@ -186,7 +193,9 @@ class ProcessCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|Process
+     * @param mixed $status
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject
      */
     private function getProcess($status = null)
     {

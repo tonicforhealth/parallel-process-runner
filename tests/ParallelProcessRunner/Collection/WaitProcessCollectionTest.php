@@ -72,7 +72,7 @@ class WaitProcessCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param       $mixed
+     * @param mixed $mixed
      * @param array $expected
      *
      * @dataProvider providerAdd
@@ -89,8 +89,8 @@ class WaitProcessCollectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testAddNotReadyProcess()
     {
+        $process = $this->getProcess(-1);
         try {
-            $process = $this->getProcess(-1);
             $collection = new WaitProcessCollection();
             $collection->add($process);
         } catch (ProcessesMustBeInReadyStatusException $exception) {
@@ -100,6 +100,8 @@ class WaitProcessCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $status
+     *
      * @return \PHPUnit_Framework_MockObject_MockObject|Process
      */
     private function getProcess($status = Process::STATUS_READY)

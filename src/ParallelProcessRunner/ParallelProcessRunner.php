@@ -117,9 +117,44 @@ class ParallelProcessRunner
      */
     public function run()
     {
-        while ($this->purgeDoneProcesses()->startWaitingProcesses()->waitBeforeStatusCheck()->isRunning());
+        while ($this->purgeDoneProcesses()->startWaitingProcesses()->waitBeforeStatusCheck()->isRunning()) {
+            // just wait
+        }
 
         return $this->doneProcessCollection->toArray();
+    }
+
+    /**
+     * @return $this
+     */
+    public function reset()
+    {
+        $this->waitProcessCollection->clear();
+        $this->activeProcessCollection->clear();
+        $this->doneProcessCollection->clear();
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function stop()
+    {
+        $this->waitProcessCollection->clear();
+        foreach ($this->activeProcessCollection->toArray() as $process) {
+            $process->stop(0);
+        }
+
+        return $this->purgeDoneProcesses();
+    }
+
+    /**
+     * stop all processes on destruct
+     */
+    public function __destruct()
+    {
+        $this->stop();
     }
 
     /**
@@ -166,18 +201,6 @@ class ParallelProcessRunner
     /**
      * @return $this
      */
-    public function reset()
-    {
-        $this->waitProcessCollection->clear();
-        $this->activeProcessCollection->clear();
-        $this->doneProcessCollection->clear();
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
     protected function waitBeforeStatusCheck()
     {
         if (!$this->activeProcessCollection->isEmpty()) {
@@ -193,23 +216,5 @@ class ParallelProcessRunner
     protected function isRunning()
     {
         return !$this->activeProcessCollection->isEmpty();
-    }
-
-    /**
-     * @return $this
-     */
-    public function stop()
-    {
-        $this->waitProcessCollection->clear();
-        foreach ($this->activeProcessCollection->toArray() as $process) {
-            $process->stop(0);
-        }
-
-        return $this->purgeDoneProcesses();
-    }
-
-    public function __destruct()
-    {
-        $this->stop();
     }
 }

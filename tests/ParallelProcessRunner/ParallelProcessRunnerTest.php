@@ -16,11 +16,17 @@ use Tonic\ParallelProcessRunner\Event\ProcessOutEvent;
  */
 class ParallelProcessRunnerTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @see ParallelProcessRunner::getEventDispatcher
+     */
     public function testEventDispatcher()
     {
         $this->assertInstanceOf(EventDispatcherInterface::class, (new ParallelProcessRunner())->getEventDispatcher());
     }
 
+    /**
+     * @see ParallelProcessRunner::getEventDispatcher
+     */
     public function testCustomEventDispatcher()
     {
         $eventDispatcher = $this->getMock(EventDispatcherInterface::class);
@@ -90,6 +96,9 @@ class ParallelProcessRunnerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedResult, $this->getOutputArray($runner->run()));
     }
 
+    /**
+     * @see ParallelProcessRunner::reset
+     */
     public function testReset()
     {
         $runner = new ParallelProcessRunner();
@@ -98,6 +107,9 @@ class ParallelProcessRunnerTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($runner->run());
     }
 
+    /**
+     * @return array
+     */
     public function providerStop()
     {
         return [
@@ -149,6 +161,64 @@ class ParallelProcessRunnerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param int $count
+     */
+    public function testBeforeStartEvent($count = 3)
+    {
+        $processes = [];
+        while ($count-- > 0) {
+            $processes[] = $this->getEchoProcess();
+        }
+        $events = $this->hookEventsByName($processes, ParallelProcessRunnerEventType::PROCESS_START_BEFORE);
+
+        $this->assertEquals(count($processes), count($events));
+        foreach ($events as $index => $event) {
+            $this->assertInstanceOf(ProcessEvent::class, $event);
+            $this->assertEquals($event->getProcess(), $processes[$index]);
+        }
+    }
+
+    /**
+     * @see ParallelProcessRunnerEventType::PROCESS_STOP_AFTER
+     */
+    public function testAfterStopEvent()
+    {
+        $processes = [
+            $this->getEchoProcess(),
+        ];
+
+        $events = $this->hookEventsByName($processes, ParallelProcessRunnerEventType::PROCESS_STOP_AFTER);
+
+        $this->assertEquals(count($processes), count($events));
+        foreach ($events as $index => $event) {
+            $this->assertInstanceOf(ProcessEvent::class, $event);
+            $this->assertEquals($event->getProcess(), $processes[$index]);
+        }
+    }
+
+    /**
+     * @see ParallelProcessRunnerEventType::PROCESS_OUT
+     */
+    public function testOutEvent()
+    {
+        $process = $this->getEchoProcess('last', 1000000, 'first');
+
+        $expected = ['first', 'last'];
+
+        /** @var ProcessOutEvent[] $events */
+        $events = $this->hookEventsByName([$process], ParallelProcessRunnerEventType::PROCESS_OUT);
+
+        $this->assertEquals(count($expected), count($events));
+        foreach ($events as $index => $event) {
+            $this->assertInstanceOf(ProcessOutEvent::class, $event);
+            $this->assertEquals($event->getProcess(), $process);
+
+            $this->assertEquals($expected[$index], $event->getOutData());
+            $this->assertEquals('out', $event->getOutType());
+        }
+    }
+
+    /**
      * @param array  $processes
      * @param string $hookedEventName
      *
@@ -172,60 +242,9 @@ class ParallelProcessRunnerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param int $count
-     */
-    public function testBeforeStartEvent($count = 3)
-    {
-        $processes = [];
-        while ($count-- > 0) {
-            $processes[] = $this->getEchoProcess();
-        }
-        $events = $this->hookEventsByName($processes, ParallelProcessRunnerEventType::PROCESS_START_BEFORE);
-
-        $this->assertEquals(count($processes), count($events));
-        foreach ($events as $index => $event) {
-            $this->assertInstanceOf(ProcessEvent::class, $event);
-            $this->assertEquals($event->getProcess(), $processes[$index]);
-        }
-    }
-
-    public function testAfterStopEvent()
-    {
-        $processes = [
-            $this->getEchoProcess(),
-        ];
-
-        $events = $this->hookEventsByName($processes, ParallelProcessRunnerEventType::PROCESS_STOP_AFTER);
-
-        $this->assertEquals(count($processes), count($events));
-        foreach ($events as $index => $event) {
-            $this->assertInstanceOf(ProcessEvent::class, $event);
-            $this->assertEquals($event->getProcess(), $processes[$index]);
-        }
-    }
-
-    public function testOutEvent()
-    {
-        $process = $this->getEchoProcess('last', 1000000, 'first');
-
-        $expected = ['first', 'last'];
-
-        /** @var ProcessOutEvent[] $events */
-        $events = $this->hookEventsByName([$process], ParallelProcessRunnerEventType::PROCESS_OUT);
-
-        $this->assertEquals(count($expected), count($events));
-        foreach ($events as $index => $event) {
-            $this->assertInstanceOf(ProcessOutEvent::class, $event);
-            $this->assertEquals($event->getProcess(), $process);
-
-            $this->assertEquals($expected[$index], $event->getOutData());
-            $this->assertEquals('out', $event->getOutType());
-        }
-    }
-
-    /**
      * @param string $string
      * @param int    $wait
+     * @param string $beforeWait
      *
      * @return Process
      */

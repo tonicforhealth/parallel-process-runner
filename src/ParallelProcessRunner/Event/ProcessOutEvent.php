@@ -14,7 +14,11 @@ class ProcessOutEvent extends ProcessEvent
     /**
      * @var string
      */
-    private $outType, $outData;
+    private $outType;
+    /**
+     * @var string
+     */
+    private $outData;
 
     /**
      * ProcessOutEvent constructor.
