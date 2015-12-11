@@ -188,7 +188,6 @@ class ParallelProcessRunnerTest extends \PHPUnit_Framework_TestCase
         foreach ($events as $index => $event) {
             $this->assertInstanceOf(ProcessBeforeStartEvent::class, $event);
             $this->assertEquals($event->getProcess(), $processes[$index]);
-            $this->assertEquals($index, $event->getProcessIndex());
         }
     }
 

@@ -132,9 +132,9 @@ class ParallelProcessRunner
         $required = max(0, $this->maxParallelProcess - $this->activeProcessCollection->count());
 
         foreach ($this->waitProcessCollection->spliceByStatus(Process::STATUS_READY, $required) as $process) {
-            $processIndex = $this->activeProcessCollection->add($process);
+            $this->activeProcessCollection->add($process);
 
-            $this->getEventDispatcher()->dispatch(ProcessBeforeStartEvent::EVENT_NAME, new ProcessBeforeStartEvent($process, $processIndex));
+            $this->getEventDispatcher()->dispatch(ProcessBeforeStartEvent::EVENT_NAME, new ProcessBeforeStartEvent($process));
             $process->start(function ($outType, $outData) use ($process) {
                 $this->getEventDispatcher()->dispatch(ProcessOutEvent::EVENT_NAME, new ProcessOutEvent($process, $outType, $outData));
             });

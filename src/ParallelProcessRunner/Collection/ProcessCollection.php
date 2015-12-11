@@ -17,10 +17,6 @@ class ProcessCollection
      * @var Process[]
      */
     private $processes = [];
-    /**
-     * @var int
-     */
-    private $processIndex;
 
     /**
      * @param Process $process
@@ -28,7 +24,7 @@ class ProcessCollection
      * @throws NotProcessException
      * @throws ProcessAlreadyInCollectionException
      *
-     * @return int index of last element
+     * @return $this
      */
     public function add($process)
     {
@@ -43,7 +39,7 @@ class ProcessCollection
 
         $this->processes[$key] = $process;
 
-        return $this->processIndex++;
+        return $this;
     }
 
     /**
