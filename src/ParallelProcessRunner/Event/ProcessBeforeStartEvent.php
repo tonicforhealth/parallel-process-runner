@@ -2,8 +2,6 @@
 
 namespace Tonic\ParallelProcessRunner\Event;
 
-use Symfony\Component\Process\Process;
-
 /**
  * Class ProcessBeforeStartEvent.
  *
