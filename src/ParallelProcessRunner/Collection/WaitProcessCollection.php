@@ -31,7 +31,8 @@ class WaitProcessCollection extends ProcessCollection
                 $this->addProcessesArray($process->toArray());
                 break;
             case $process instanceof Process:
-                $this->addProcess($process);
+                $this->verifyProcess($process);
+                parent::add($process);
         }
 
         return $this;
@@ -56,11 +57,10 @@ class WaitProcessCollection extends ProcessCollection
      * @throws \Tonic\ParallelProcessRunner\Exception\NotProcessException
      * @throws \Tonic\ParallelProcessRunner\Exception\ProcessAlreadyInCollectionException
      */
-    protected function addProcess(Process $process)
+    protected function verifyProcess(Process $process)
     {
         if ($process->getStatus() != Process::STATUS_READY) {
             throw new ProcessesMustBeInReadyStatusException($process);
         }
-        parent::add($process);
     }
 }
