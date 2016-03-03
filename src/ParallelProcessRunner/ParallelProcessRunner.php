@@ -27,15 +27,15 @@ class ParallelProcessRunner
     /**
      * @var WaitProcessCollection
      */
-    protected $waitProcessCollection;
+    protected $waitCollection;
     /**
      * @var ProcessCollection
      */
-    protected $activeProcessCollection;
+    protected $activeCollection;
     /**
      * @var ProcessCollection
      */
-    protected $doneProcessCollection;
+    protected $doneCollection;
     /**
      * maximum processes in parallel
      *
@@ -61,9 +61,9 @@ class ParallelProcessRunner
         }
 
         $this->eventDispatcher = $eventDispatcher;
-        $this->waitProcessCollection = new WaitProcessCollection();
-        $this->activeProcessCollection = new ProcessCollection();
-        $this->doneProcessCollection = new ProcessCollection();
+        $this->waitCollection = new WaitProcessCollection();
+        $this->activeCollection = new ProcessCollection();
+        $this->doneCollection = new ProcessCollection();
     }
 
     /**
@@ -107,7 +107,7 @@ class ParallelProcessRunner
      */
     public function add($processes)
     {
-        $this->waitProcessCollection->add($processes);
+        $this->waitCollection->add($processes);
 
         return $this;
     }
@@ -121,7 +121,7 @@ class ParallelProcessRunner
             // just wait
         }
 
-        return $this->doneProcessCollection->toArray();
+        return $this->doneCollection->toArray();
     }
 
     /**
@@ -129,9 +129,9 @@ class ParallelProcessRunner
      */
     public function reset()
     {
-        $this->waitProcessCollection->clear();
-        $this->activeProcessCollection->clear();
-        $this->doneProcessCollection->clear();
+        $this->waitCollection->clear();
+        $this->activeCollection->clear();
+        $this->doneCollection->clear();
 
         return $this;
     }
@@ -141,8 +141,8 @@ class ParallelProcessRunner
      */
     public function stop()
     {
-        $this->waitProcessCollection->clear();
-        foreach ($this->activeProcessCollection->toArray() as $process) {
+        $this->waitCollection->clear();
+        foreach ($this->activeCollection->toArray() as $process) {
             $process->stop(0);
         }
 
@@ -164,10 +164,10 @@ class ParallelProcessRunner
      */
     protected function startWaitingProcesses()
     {
-        $required = max(0, $this->maxParallelProcess - $this->activeProcessCollection->count());
+        $required = max(0, $this->maxParallelProcess - $this->activeCollection->count());
 
-        foreach ($this->waitProcessCollection->spliceByStatus(Process::STATUS_READY, $required) as $process) {
-            $this->activeProcessCollection->add($process);
+        foreach ($this->waitCollection->spliceByStatus(Process::STATUS_READY, $required) as $process) {
+            $this->activeCollection->add($process);
 
             $this->getEventDispatcher()->dispatch(ParallelProcessRunnerEventType::PROCESS_START_BEFORE, new ProcessEvent($process));
             $process->start(function ($outType, $outData) use ($process) {
@@ -186,12 +186,12 @@ class ParallelProcessRunner
     protected function purgeDoneProcesses()
     {
         $processes = array_merge(
-            $this->activeProcessCollection->spliceByStatus(Process::STATUS_READY),
-            $this->activeProcessCollection->spliceByStatus(Process::STATUS_TERMINATED)
+            $this->activeCollection->spliceByStatus(Process::STATUS_READY),
+            $this->activeCollection->spliceByStatus(Process::STATUS_TERMINATED)
         );
 
         foreach ($processes as $process) {
-            $this->doneProcessCollection->add($process);
+            $this->doneCollection->add($process);
             $this->getEventDispatcher()->dispatch(ParallelProcessRunnerEventType::PROCESS_STOP_AFTER, new ProcessEvent($process));
         }
 
@@ -203,7 +203,7 @@ class ParallelProcessRunner
      */
     protected function waitBeforeStatusCheck()
     {
-        if (!$this->activeProcessCollection->isEmpty()) {
+        if (!$this->activeCollection->isEmpty()) {
             usleep($this->statusCheckWait);
         }
 
@@ -215,6 +215,6 @@ class ParallelProcessRunner
      */
     protected function isRunning()
     {
-        return !$this->activeProcessCollection->isEmpty();
+        return !$this->activeCollection->isEmpty();
     }
 }
