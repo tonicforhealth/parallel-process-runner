@@ -32,7 +32,7 @@ class ProcessCollection
             throw new NotProcessException($process);
         }
 
-        $key = spl_object_hash($process);
+        $key = $this->getKey($process);
         if (array_key_exists($key, $this->processes)) {
             throw new ProcessAlreadyInCollectionException($process);
         }
@@ -40,6 +40,16 @@ class ProcessCollection
         $this->processes[$key] = $process;
 
         return $this;
+    }
+
+    /**
+     * @param Process $process
+     *
+     * @return string
+     */
+    protected function getKey(Process $process)
+    {
+        return spl_object_hash($process);
     }
 
     /**
@@ -80,24 +90,39 @@ class ProcessCollection
      */
     public function spliceByStatus($processStatus, $limit = null)
     {
-        $processes = [];
+        $processes = array_slice(
+            $this->filterByStatus($processStatus),
+            0,
+            is_null($limit) ? $this->count(): $limit
+        );
 
-        if (is_null($limit)) {
-            $limit = $this->count();
-        }
+        return array_map(function(Process $process){
+            return $this->pop($process);
+        }, array_values($processes));
+    }
 
-        foreach ($this->processes as $index => $process) {
-            if (count($processes) >= $limit) {
-                break;
-            }
+    /**
+     * @param string $status
+     *
+     * @return Process[]
+     */
+    protected function filterByStatus($status)
+    {
+        return array_filter($this->processes, function (Process $process) use ($status) {
+            return $process->getStatus() == $status;
+        });
+    }
 
-            if ($process->getStatus() == $processStatus) {
-                unset($this->processes[$index]);
-                $processes[] = $process;
-            }
-        }
+    /**
+     * @param Process $process
+     *
+     * @return Process
+     */
+    protected function pop(Process $process)
+    {
+        unset($this->processes[$this->getKey($process)]);
 
-        return $processes;
+        return $process;
     }
 
     /**
