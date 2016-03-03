@@ -18,3 +18,5 @@ $runner
     ])
     ->run();
 ```
+
+[![Code Climate](https://codeclimate.com/github/tonicforhealth/parallel-process-runner/badges/gpa.svg)](https://codeclimate.com/github/tonicforhealth/parallel-process-runner)
