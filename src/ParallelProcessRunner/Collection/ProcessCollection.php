@@ -43,16 +43,6 @@ class ProcessCollection
     }
 
     /**
-     * @param Process $process
-     *
-     * @return string
-     */
-    protected function getKey(Process $process)
-    {
-        return spl_object_hash($process);
-    }
-
-    /**
      * @return $this
      */
     public function clear()
@@ -102,6 +92,24 @@ class ProcessCollection
     }
 
     /**
+     * @return Process[]
+     */
+    public function toArray()
+    {
+        return array_values($this->processes);
+    }
+
+    /**
+     * @param Process $process
+     *
+     * @return string
+     */
+    protected function getKey(Process $process)
+    {
+        return spl_object_hash($process);
+    }
+
+    /**
      * @param string $status
      *
      * @return Process[]
@@ -123,13 +131,5 @@ class ProcessCollection
         unset($this->processes[$this->getKey($process)]);
 
         return $process;
-    }
-
-    /**
-     * @return Process[]
-     */
-    public function toArray()
-    {
-        return array_values($this->processes);
     }
 }
