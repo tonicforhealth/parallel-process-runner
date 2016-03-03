@@ -117,9 +117,9 @@ class ParallelProcessRunner
      */
     public function run()
     {
-        while ($this->purgeDoneProcesses()->startWaitingProcesses()->waitBeforeStatusCheck()->isRunning()) {
-            // just wait
-        }
+        do {
+            $isRunning = $this->purgeDoneProcesses()->startWaitingProcesses()->waitBeforeStatusCheck()->isRunning();
+        } while ($isRunning);
 
         return $this->doneCollection->toArray();
     }

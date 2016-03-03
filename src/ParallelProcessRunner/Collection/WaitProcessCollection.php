@@ -36,7 +36,7 @@ class WaitProcessCollection extends ProcessCollection
                 if ($process->getStatus() != Process::STATUS_READY) {
                     throw new ProcessesMustBeInReadyStatusException($process);
                 }
-                // no break
+            // no break
             default:
                 $result = parent::add($process);
         }
