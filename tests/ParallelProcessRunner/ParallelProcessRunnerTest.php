@@ -61,7 +61,7 @@ class ParallelProcessRunnerTest extends \PHPUnit_Framework_TestCase
                 2,
                 [
                     $this->getEchoProcess('1'),
-                    $this->getEchoProcess('2', 1000),
+                    $this->getEchoProcess('', 50000, '2'),
                 ],
                 [1, 2],
             ],
