@@ -32,7 +32,7 @@ class ProcessCollection
             throw new NotProcessException($process);
         }
 
-        $key = spl_object_hash($process);
+        $key = $this->getKey($process);
         if (array_key_exists($key, $this->processes)) {
             throw new ProcessAlreadyInCollectionException($process);
         }
@@ -80,24 +80,15 @@ class ProcessCollection
      */
     public function spliceByStatus($processStatus, $limit = null)
     {
-        $processes = [];
+        $processes = array_slice(
+            $this->filterByStatus($processStatus),
+            0,
+            is_null($limit) ? $this->count(): $limit
+        );
 
-        if (is_null($limit)) {
-            $limit = $this->count();
-        }
-
-        foreach ($this->processes as $index => $process) {
-            if (count($processes) >= $limit) {
-                break;
-            }
-
-            if ($process->getStatus() == $processStatus) {
-                unset($this->processes[$index]);
-                $processes[] = $process;
-            }
-        }
-
-        return $processes;
+        return array_map(function(Process $process){
+            return $this->pop($process);
+        }, array_values($processes));
     }
 
     /**
@@ -106,5 +97,39 @@ class ProcessCollection
     public function toArray()
     {
         return array_values($this->processes);
+    }
+
+    /**
+     * @param Process $process
+     *
+     * @return string
+     */
+    protected function getKey(Process $process)
+    {
+        return spl_object_hash($process);
+    }
+
+    /**
+     * @param string $status
+     *
+     * @return Process[]
+     */
+    protected function filterByStatus($status)
+    {
+        return array_filter($this->processes, function (Process $process) use ($status) {
+            return $process->getStatus() == $status;
+        });
+    }
+
+    /**
+     * @param Process $process
+     *
+     * @return Process
+     */
+    protected function pop(Process $process)
+    {
+        unset($this->processes[$this->getKey($process)]);
+
+        return $process;
     }
 }

@@ -17,7 +17,7 @@ class WaitProcessCollection extends ProcessCollection
      *
      * @param Process|Process[]|ProcessCollection|array $process
      *
-     * @return array|int
+     * @return $this
      *
      * @throws ProcessesMustBeInReadyStatusException
      */
@@ -25,22 +25,42 @@ class WaitProcessCollection extends ProcessCollection
     {
         switch (true) {
             case is_array($process):
-                $result = array_map(function ($process) {
-                    return $this->add($process);
-                }, $process);
+                $this->addProcessesArray($process);
                 break;
             case $process instanceof ProcessCollection:
-                $result = $this->add($process->toArray());
+                $this->addProcessesArray($process->toArray());
                 break;
             case $process instanceof Process:
-                if ($process->getStatus() != Process::STATUS_READY) {
-                    throw new ProcessesMustBeInReadyStatusException($process);
-                }
-            // no break
-            default:
-                $result = parent::add($process);
+                $this->verifyProcess($process);
+                parent::add($process);
         }
 
-        return $result;
+        return $this;
+    }
+
+    /**
+     * @param array $processes
+     *
+     * @return array
+     */
+    protected function addProcessesArray(array $processes)
+    {
+        return array_map(function ($process) {
+            return $this->add($process);
+        }, $processes);
+    }
+
+    /**
+     * @param Process $process
+     *
+     * @throws ProcessesMustBeInReadyStatusException
+     * @throws \Tonic\ParallelProcessRunner\Exception\NotProcessException
+     * @throws \Tonic\ParallelProcessRunner\Exception\ProcessAlreadyInCollectionException
+     */
+    protected function verifyProcess(Process $process)
+    {
+        if ($process->getStatus() != Process::STATUS_READY) {
+            throw new ProcessesMustBeInReadyStatusException($process);
+        }
     }
 }
