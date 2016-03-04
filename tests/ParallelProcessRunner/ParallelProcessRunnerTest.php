@@ -153,6 +153,7 @@ class ParallelProcessRunnerTest extends \PHPUnit_Framework_TestCase
 
         $runner->getEventDispatcher()->addListener(ParallelProcessRunnerEventType::PROCESS_STOP_AFTER, function (ProcessEvent $event) use ($runner) {
             if ($event->getProcess()->getOutput() == 'stop') {
+                usleep(1000);
                 $runner->stop();
             }
         });
