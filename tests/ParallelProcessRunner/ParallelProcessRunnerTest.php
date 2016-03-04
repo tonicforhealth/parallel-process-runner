@@ -85,8 +85,6 @@ class ParallelProcessRunnerTest extends \PHPUnit_Framework_TestCase
      */
     public function testRun($maxParallelProcess, $processes, array $expectedResult)
     {
-        $processStatus = null;
-
         $runner = new ParallelProcessRunner();
         $runner->setStatusCheckWait(10);
         $runner->setMaxParallelProcess($maxParallelProcess);
@@ -153,7 +151,6 @@ class ParallelProcessRunnerTest extends \PHPUnit_Framework_TestCase
 
         $runner->getEventDispatcher()->addListener(ParallelProcessRunnerEventType::PROCESS_STOP_AFTER, function (ProcessEvent $event) use ($runner) {
             if ($event->getProcess()->getOutput() == 'stop') {
-                usleep(1000);
                 $runner->stop();
             }
         });
@@ -251,7 +248,7 @@ class ParallelProcessRunnerTest extends \PHPUnit_Framework_TestCase
      */
     private function getEchoProcess($string = '', $wait = 0, $beforeWait = '')
     {
-        $phpCode = sprintf('echo %s; usleep(%d); echo %s;', var_export($beforeWait, true), $wait, var_export($string, true));
+        $phpCode = sprintf('echo %s; flush(); usleep(%d); echo %s; flush();', var_export($beforeWait, true), $wait, var_export($string, true));
 
         return new Process(sprintf('%s -r %s', PHP_BINARY, escapeshellarg($phpCode)));
     }
